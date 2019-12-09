@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:vigenere_mobile/model/baseurl.dart';
 import 'package:vigenere_mobile/view/dashboard.dart';
 import 'package:vigenere_mobile/model/util.dart';
+import 'package:vigenere_mobile/view/signup.dart';
 
 void main() => runApp(MyApp());
 
@@ -35,7 +36,7 @@ class MyHomePage extends StatefulWidget {
 enum LoginStatus { notSignIn, signIn }
 
 class _MyHomePageState extends State<MyHomePage> {
-  LoginStatus _loginStatus = LoginStatus.notSignIn;
+  LoginStatus loginStatus = LoginStatus.notSignIn;
   String _username = '', _password = '';
   final _key = new GlobalKey<FormState>();
   bool _validate = false;
@@ -61,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
       String hp = datauser[0]['hp'];
       if (value == 1) {
         setState(() {
-          _loginStatus = LoginStatus.signIn;
+          loginStatus = LoginStatus.signIn;
           savePref(value, username, email, hp);
         });
       } else {
@@ -71,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: new Text("Login"),
-              content: new Text("Username atau Password Anda Salah!"),
+              content: new Text("Incorrect Username or Password!"),
               actions: <Widget>[
                 new FlatButton(
                   child: new Text("Close"),
@@ -107,22 +108,9 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       value = sharedPreferences.getInt('value');
 
-      _loginStatus = value == 1 ? LoginStatus.signIn : LoginStatus.notSignIn;
+      loginStatus = value == 1 ? LoginStatus.signIn : LoginStatus.notSignIn;
     });
   }
-
-  // signOut() async {
-  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     Util.user = "";
-  //     sharedPreferences.setInt("value", null);
-  //     sharedPreferences.setString("username", null);
-  //     sharedPreferences.setString("email", null);
-  //     sharedPreferences.setString("hp", null);
-  //     sharedPreferences.commit();
-  //     _loginStatus = LoginStatus.notSignIn;
-  //   });
-  // }
 
   @override
   void initState() {
@@ -132,99 +120,128 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    switch (_loginStatus) {
+    switch (loginStatus) {
       case LoginStatus.notSignIn:
         return Scaffold(
           resizeToAvoidBottomPadding: false,
-          appBar: AppBar(
-            title: Text(widget.title),
-          ),
+          // appBar: AppBar(
+          //   title: Text(widget.title),
+          // ),
           body: SafeArea(
-            child: Stack(children: <Widget>[
+            child: Stack(fit: StackFit.expand, children: <Widget>[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Center(
+                    child: Padding(
+                        padding: EdgeInsets.only(top: 50.0),
+                        child: Image.asset(
+                          "assets/cryptography.png",
+                          height: 100.0,
+                        )),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Center(
+                      child: Text(
+                    "SIGN IN",
+                    style:
+                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                  )),
+                  Expanded(
+                    child: Container(),
+                  ),
+                  Image.asset('assets/image_02.png', color: Colors.grey)
+                ],
+              ),
               SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.all(50.0),
+                  padding: const EdgeInsets.fromLTRB(16, 200, 16, 16),
                   child: Container(
-                    child: SizedBox(
-                      height: 270.0,
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Form(
-                            key: _key,
-                            autovalidate: _validate,
-                            child: Column(
-                              children: <Widget>[
-                                // username(_username),
-                                // password(_password, _secureText, showHide),
-                                TextFormField(
-                                    validator: valUser,
-                                    onSaved: (String val) {
-                                      _username = val;
-                                    },
-                                    decoration:
-                                        InputDecoration(labelText: "Username")),
-                                TextFormField(
-                                    validator: valPass,
-                                    onSaved: (String val) {
-                                      return _password = val;
-                                    },
-                                    obscureText: _secureText,
-                                    decoration: InputDecoration(
-                                        suffixIcon: IconButton(
-                                          onPressed: showHide,
-                                          icon: Icon(_secureText
-                                              ? Icons.visibility_off
-                                              : Icons.visibility),
-                                        ),
-                                        labelText: "Password")),
-                                SizedBox(
-                                  height: 20.0,
-                                ),
-                                InkWell(
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: 30.0,
-                                    decoration: BoxDecoration(
-                                        color: Colors.blue,
-                                        borderRadius:
-                                            BorderRadius.circular(15.0)),
-                                    child: Material(
-                                      color: Colors.transparent,
-                                      child: InkWell(
-                                        onTap: login,
-                                        child: Center(
-                                          child: Text(
-                                            "Login",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 15,
-                                                letterSpacing: 1.0),
-                                          ),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Form(
+                          key: _key,
+                          autovalidate: _validate,
+                          child: Column(
+                            children: <Widget>[
+                              TextFormField(
+                                  validator: valUser,
+                                  onSaved: (String val) {
+                                    _username = val;
+                                  },
+                                  decoration: InputDecoration(
+                                      labelText: "Username",
+                                      border: OutlineInputBorder())),
+                              SizedBox(
+                                height: 16.0,
+                              ),
+                              TextFormField(
+                                  validator: valPass,
+                                  onSaved: (String val) {
+                                    return _password = val;
+                                  },
+                                  obscureText: _secureText,
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      suffixIcon: IconButton(
+                                        onPressed: showHide,
+                                        icon: Icon(_secureText
+                                            ? Icons.visibility_off
+                                            : Icons.visibility),
+                                      ),
+                                      labelText: "Password")),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              InkWell(
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 56.0,
+                                  decoration: BoxDecoration(
+                                      color: Colors.blue,
+                                      borderRadius: BorderRadius.circular(4.0)),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: login,
+                                      child: Center(
+                                        child: Text(
+                                          "Login",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                              letterSpacing: 1.0),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                SizedBox(
-                                  height: 10.0,
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    print("daftar");
-                                  },
-                                  child: Center(
-                                    child: Text(
-                                      "Daftar akun baru?",
-                                      style: TextStyle(
-                                          color: Colors.blue,
-                                          fontSize: 15,
-                                          letterSpacing: 1.0),
-                                    ),
+                              ),
+                              SizedBox(
+                                height: 10.0,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Signup()),
+                                  );
+                                },
+                                child: Center(
+                                  child: Text(
+                                    "Create new account?",
+                                    style: TextStyle(
+                                        color: Colors.blue,
+                                        fontSize: 15,
+                                        letterSpacing: 1.0),
                                   ),
-                                )
-                              ],
-                            ),
+                                ),
+                              )
+                            ],
                           ),
                         ),
                       ),

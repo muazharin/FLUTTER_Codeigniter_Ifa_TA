@@ -11,7 +11,7 @@ class Sidebar extends StatefulWidget {
 enum LoginStatus { notSignIn, signIn }
 
 class _SidebarState extends State<Sidebar> {
-  LoginStatus _loginStatus = LoginStatus.notSignIn;
+  LoginStatus loginStatus = LoginStatus.notSignIn;
   var util = new Util.initialized();
   String name;
   String email;
@@ -33,7 +33,8 @@ class _SidebarState extends State<Sidebar> {
       sharedPreferences.setString("email", null);
       sharedPreferences.setString("hp", null);
       sharedPreferences.commit();
-      _loginStatus = LoginStatus.notSignIn;
+      loginStatus = LoginStatus.notSignIn;
+      Navigator.pop(context);
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => MyApp()),
