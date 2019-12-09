@@ -1,3 +1,11 @@
 class Util {
-  static String cl = "blue";
+  String username;
+
+  Util(this.username);
+  Util.initialized() {
+    this.username = '';
+  }
+
+  String getUsername() => this.username;
+  void setUsername(String value) => username = value;
 }

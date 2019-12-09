@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:vigenere_mobile/model/util.dart';
+import 'package:vigenere_mobile/main.dart';
+import 'package:vigenere_mobile/model/util.dart';
 
 class Sidebar extends StatefulWidget {
   @override
   _SidebarState createState() => _SidebarState();
 }
 
+enum LoginStatus { notSignIn, signIn }
+
 class _SidebarState extends State<Sidebar> {
+  LoginStatus _loginStatus = LoginStatus.notSignIn;
+  var util = new Util.initialized();
   String name;
   String email;
   getPref() async {
@@ -15,6 +20,24 @@ class _SidebarState extends State<Sidebar> {
     setState(() {
       name = sharedPreferences.getString("username");
       email = sharedPreferences.getString("email");
+    });
+  }
+
+  signOut() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    setState(() {
+      util.setUsername('');
+      sharedPreferences.setInt("value", null);
+      sharedPreferences.setString("username", null);
+      sharedPreferences.setString("email", null);
+      sharedPreferences.setString("hp", null);
+      sharedPreferences.commit();
+      _loginStatus = LoginStatus.notSignIn;
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MyApp()),
+      );
     });
   }
 
@@ -61,7 +84,30 @@ class _SidebarState extends State<Sidebar> {
                   ListTile(
                     title: Text("Logout"),
                     leading: Icon(Icons.exit_to_app),
-                    onLongPress: () {},
+                    onTap: () {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            // return object of type Dialog
+                            return AlertDialog(
+                              title: new Text("Exit"),
+                              content: new Text("Do you really want to exit?"),
+                              actions: <Widget>[
+                                // usually buttons at the bottom of the dialog
+                                new FlatButton(
+                                  child: new Text("Cancel"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                new FlatButton(
+                                  child: new Text("Yes"),
+                                  onPressed: signOut,
+                                )
+                              ],
+                            );
+                          });
+                    },
                   ),
                 ],
               ),

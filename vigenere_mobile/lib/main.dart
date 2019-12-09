@@ -5,6 +5,7 @@ import 'package:vigenere_mobile/model/form.dart';
 import 'package:http/http.dart' as http;
 import 'package:vigenere_mobile/model/baseurl.dart';
 import 'package:vigenere_mobile/view/dashboard.dart';
+import 'package:vigenere_mobile/model/util.dart';
 
 void main() => runApp(MyApp());
 
@@ -88,13 +89,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   savePref(int value, String username, String email, String hp) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var util = new Util.initialized();
     setState(() {
+      util.setUsername(username);
       sharedPreferences.setInt("value", value);
       sharedPreferences.setString("username", username);
       sharedPreferences.setString("email", email);
       sharedPreferences.setString("hp", hp);
       sharedPreferences.commit();
     });
+    print(util.getUsername());
   }
 
   var value;
@@ -107,17 +111,18 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  signOut() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    setState(() {
-      sharedPreferences.setInt("value", null);
-      sharedPreferences.setString("username", null);
-      sharedPreferences.setString("email", null);
-      sharedPreferences.setString("hp", null);
-      sharedPreferences.commit();
-      _loginStatus = LoginStatus.notSignIn;
-    });
-  }
+  // signOut() async {
+  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  //   setState(() {
+  //     Util.user = "";
+  //     sharedPreferences.setInt("value", null);
+  //     sharedPreferences.setString("username", null);
+  //     sharedPreferences.setString("email", null);
+  //     sharedPreferences.setString("hp", null);
+  //     sharedPreferences.commit();
+  //     _loginStatus = LoginStatus.notSignIn;
+  //   });
+  // }
 
   @override
   void initState() {

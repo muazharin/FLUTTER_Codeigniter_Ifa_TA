@@ -1,5 +1,3 @@
-// import 'package:flutter/material.dart';
-
 String valUser(String value) {
   if (value.length == 0) {
     return "Username is Required";
@@ -17,26 +15,26 @@ String valPass(String value) {
   return null;
 }
 
-// Widget username(String _username) {
-//   return TextFormField(
-//       validator: valUser,
-//       onSaved: (String val) {
-//         return _username = val;
-//       },
-//       decoration: InputDecoration(labelText: "Username"));
-// }
+String valTo(String value) {
+  if (value.length == 0) {
+    return "To is Required";
+  } else {
+    return null;
+  }
+}
 
-// Widget password(String _password, _secureText, showHide) {
-//   return TextFormField(
-//       validator: valPass,
-//       onSaved: (String val) {
-//         return _password = val;
-//       },
-//       obscureText: _secureText,
-//       decoration: InputDecoration(
-//           suffixIcon: IconButton(
-//             onPressed: showHide,
-//             icon: Icon(_secureText ? Icons.visibility_off : Icons.visibility),
-//           ),
-//           labelText: "Password"));
-// }
+String valKey(String value) {
+  if (value.length == 0) {
+    return "Key is Required";
+  } else {
+    return null;
+  }
+}
+
+String valMessage(String value) {
+  if (value.length == 0) {
+    return "Message is Required";
+  } else {
+    return null;
+  }
+}
