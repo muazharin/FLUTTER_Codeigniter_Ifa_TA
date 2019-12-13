@@ -50,6 +50,9 @@ flutter:
     - assets/tech.jpg
     - assets/cryptography.png
     - assets/image_02.png
+    - assets/padlock.png
+    - assets/lock.png
+    - assets/locked.png
   #  - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

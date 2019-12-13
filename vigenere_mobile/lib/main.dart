@@ -20,6 +20,9 @@ class MyApp extends StatelessWidget {
       ),
       home: MyHomePage(title: 'Ifa App'),
       debugShowCheckedModeBanner: false,
+      routes: <String, WidgetBuilder>{
+        '/main': (BuildContext context) => MyHomePage()
+      },
     );
   }
 }
@@ -36,7 +39,7 @@ class MyHomePage extends StatefulWidget {
 enum LoginStatus { notSignIn, signIn }
 
 class _MyHomePageState extends State<MyHomePage> {
-  LoginStatus loginStatus = LoginStatus.notSignIn;
+  LoginStatus _loginStatus = LoginStatus.notSignIn;
   String _username = '', _password = '';
   final _key = new GlobalKey<FormState>();
   bool _validate = false;
@@ -62,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
       String hp = datauser[0]['hp'];
       if (value == 1) {
         setState(() {
-          loginStatus = LoginStatus.signIn;
+          _loginStatus = LoginStatus.signIn;
           savePref(value, username, email, hp);
         });
       } else {
@@ -108,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       value = sharedPreferences.getInt('value');
 
-      loginStatus = value == 1 ? LoginStatus.signIn : LoginStatus.notSignIn;
+      _loginStatus = value == 1 ? LoginStatus.signIn : LoginStatus.notSignIn;
     });
   }
 
@@ -120,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    switch (loginStatus) {
+    switch (_loginStatus) {
       case LoginStatus.notSignIn:
         return Scaffold(
           resizeToAvoidBottomPadding: false,

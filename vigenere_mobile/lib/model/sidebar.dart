@@ -11,7 +11,7 @@ class Sidebar extends StatefulWidget {
 enum LoginStatus { notSignIn, signIn }
 
 class _SidebarState extends State<Sidebar> {
-  LoginStatus loginStatus = LoginStatus.notSignIn;
+  LoginStatus _loginStatus = LoginStatus.notSignIn;
   var util = new Util.initialized();
   String name;
   String email;
@@ -33,12 +33,9 @@ class _SidebarState extends State<Sidebar> {
       sharedPreferences.setString("email", null);
       sharedPreferences.setString("hp", null);
       sharedPreferences.commit();
-      loginStatus = LoginStatus.notSignIn;
+      _loginStatus = LoginStatus.notSignIn;
       Navigator.pop(context);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => MyApp()),
-      );
+      Navigator.pushReplacementNamed(context, '/main');
     });
   }
 
@@ -72,11 +69,6 @@ class _SidebarState extends State<Sidebar> {
             new SingleChildScrollView(
               child: Column(
                 children: <Widget>[
-                  ListTile(
-                    title: Text("Color"),
-                    leading: Icon(Icons.color_lens),
-                    onLongPress: () {},
-                  ),
                   ListTile(
                     title: Text("About"),
                     leading: Icon(Icons.info_outline),

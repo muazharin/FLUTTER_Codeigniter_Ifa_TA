@@ -78,6 +78,9 @@ class Api extends CI_Controller
         if (!empty($_FILES['image']['name'])) {
             if ($this->upload->do_upload('image')) {
                 $foto = $this->upload->data();
+                $hex = unpack("H*", file_get_contents('assets/file_kirim/' . $foto['file_name']));
+                $hex = current($hex);
+                file_put_contents("assets/file_enc/" . $foto['file_name'], $hex);
                 $data = [
                     'pengirim' => $pengirim,
                     'penerima' => $penerima,
@@ -114,6 +117,24 @@ class Api extends CI_Controller
         foreach ($query as $q) {
             $api[] = [
                 'penerima' => $q->penerima,
+                'kunci' => $q->kunci,
+                'foto' => $q->foto,
+                'pesan' => $q->pesan,
+                'ket' => $q->ket
+            ];
+        }
+        echo json_encode($api);
+    }
+
+    public function getDataInbox()
+    {
+        $penerima = $this->input->post('penerima', true);
+        $this->db->where('penerima', $penerima);
+        $query = $this->db->get('tb_send')->result();
+        $api = array();
+        foreach ($query as $q) {
+            $api[] = [
+                'pengirim' => $q->pengirim,
                 'kunci' => $q->kunci,
                 'foto' => $q->foto,
                 'pesan' => $q->pesan,
