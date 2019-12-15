@@ -98,8 +98,8 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
     } else {
       final data = jsonDecode(response.body);
       data.forEach((api) {
-        final ok = new Listkirim(api['penerima'], api['kunci'], api['foto'],
-            api['pesan'], api['ket']);
+        final ok = new Listkirim(api['id'], api['penerima'], api['kunci'],
+            api['tipe'], api['str'], api['pesan'], api['ket']);
         listkirim.add(ok);
       });
       setState(() {
@@ -110,6 +110,7 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
   }
 
   final _keySend = new GlobalKey<FormState>();
+  final _keyKey = new GlobalKey<FormState>();
   bool _validateSend = false;
   String to = '', key = '', message = '';
 
@@ -281,15 +282,15 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
                                   border: OutlineInputBorder()),
                             ),
                             SizedBox(
-                              height: 20.0,
+                              height: 8.0,
                             ),
                             InkWell(
                               child: Container(
                                 width: double.infinity,
-                                height: 30.0,
+                                height: 56.0,
                                 decoration: BoxDecoration(
                                     color: Colors.blue,
-                                    borderRadius: BorderRadius.circular(15.0)),
+                                    borderRadius: BorderRadius.circular(4.0)),
                                 child: Material(
                                   color: Colors.transparent,
                                   child: InkWell(
@@ -443,6 +444,38 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
                         itemCount: listkirim == null ? 0 : listkirim.length,
                         itemBuilder: (context, i) {
                           final res = listkirim[i];
+                          print(res.tipe);
+                          String pws = '';
+                          void generateKey() async {
+                            if (_keyKey.currentState.validate()) {
+                              _keyKey.currentState.save();
+                              final gen = await http.post(Baseurl.gen, body: {
+                                'id': res.id,
+                                'nama': user,
+                                'tipe': res.tipe,
+                                'str': res.str,
+                                'key': pws
+                              });
+                              var enc = jsonDecode(gen.body);
+                              var end = enc['result'];
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: new Text('Encryption Result'),
+                                      content: new Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: <Widget>[
+                                          Image.network(Baseurl.ip +
+                                              '/ifa_ta/assets/file_dec/' +
+                                              end),
+                                        ],
+                                      ),
+                                    );
+                                  });
+                            }
+                          }
+
                           return Container(
                             child: Padding(
                               padding:
@@ -452,7 +485,83 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
                                   Padding(
                                     padding: const EdgeInsets.all(6.0),
                                     child: InkWell(
-                                      onTap: () {},
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: new Text("Detail"),
+                                              content: new Form(
+                                                key: _keyKey,
+                                                autovalidate: _validateSend,
+                                                child: SingleChildScrollView(
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: <Widget>[
+                                                      TextFormField(
+                                                        validator: valKey,
+                                                        onSaved: (String val) {
+                                                          pws = val;
+                                                        },
+                                                        decoration: InputDecoration(
+                                                            labelText: "Key",
+                                                            border:
+                                                                OutlineInputBorder()),
+                                                      ),
+                                                      SizedBox(
+                                                        height: 8.0,
+                                                      ),
+                                                      InkWell(
+                                                        child: Container(
+                                                          width:
+                                                              double.infinity,
+                                                          height: 56.0,
+                                                          decoration: BoxDecoration(
+                                                              color:
+                                                                  Colors.blue,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          4.0)),
+                                                          child: Material(
+                                                            color: Colors
+                                                                .transparent,
+                                                            child: InkWell(
+                                                              onTap:
+                                                                  generateKey,
+                                                              child: Center(
+                                                                child: Text(
+                                                                  "Generate",
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          15,
+                                                                      letterSpacing:
+                                                                          1.0),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              actions: <Widget>[
+                                                new FlatButton(
+                                                  child: new Text("Close"),
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
                                       child: Container(
                                         child: Row(
                                           children: <Widget>[
@@ -481,7 +590,9 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
                                                         fontWeight:
                                                             FontWeight.bold),
                                                   ),
-                                                  Text(res.kunci + ' | ' + res.ket),
+                                                  Text(res.tipe +
+                                                      ' | ' +
+                                                      res.kunci),
                                                 ],
                                               ),
                                             )

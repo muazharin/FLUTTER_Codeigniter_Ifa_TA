@@ -65,6 +65,7 @@ class Api extends CI_Controller
 
     public function sendImage()
     {
+        $this->load->library('vigen');
         $pengirim = $this->input->post('pengirim', true);
         $penerima = $this->input->post('penerima', true);
         $kunci = $this->input->post('kunci', true);
@@ -80,22 +81,29 @@ class Api extends CI_Controller
                 $foto = $this->upload->data();
                 $hex = unpack("H*", file_get_contents('assets/file_kirim/' . $foto['file_name']));
                 $hex = current($hex);
+                $hex = $this->vigen->encrypt($kunci, $hex);
                 file_put_contents("assets/file_enc/" . $foto['file_name'], $hex);
                 $data = [
                     'pengirim' => $pengirim,
                     'penerima' => $penerima,
                     'kunci' => $kunci,
-                    'foto' => $foto['file_name'],
+                    'tipe' => 'img',
+                    'str' => $hex,
                     'pesan' => $pesan,
                     'ket' => $ket
                 ];
                 $this->db->insert('tb_send', $data);
+                $insert_id = $this->db->insert_id();
                 $data2 = [
-                    'pengirim' => $pengirim,
-                    'penerima' => $penerima,
-                    'ket' => $ket
+                    'id_send' => $insert_id
                 ];
                 $this->db->insert('tb_recent', $data2);
+                $data3 = [
+                    'id_send' => $insert_id,
+                    'ket_pengirim' => 'no',
+                    'ket_penerima' => 'no'
+                ];
+                $this->db->insert('tb_delete', $data3);
                 $api = [
                     'message' => 'Data has been sent'
                 ];
@@ -116,9 +124,11 @@ class Api extends CI_Controller
         $api = array();
         foreach ($query as $q) {
             $api[] = [
+                'id' => $q->id_send,
                 'penerima' => $q->penerima,
                 'kunci' => $q->kunci,
-                'foto' => $q->foto,
+                'tipe' => $q->tipe,
+                'str' => $q->str,
                 'pesan' => $q->pesan,
                 'ket' => $q->ket
             ];
@@ -134,13 +144,60 @@ class Api extends CI_Controller
         $api = array();
         foreach ($query as $q) {
             $api[] = [
+                'id' => $q->id_send,
                 'pengirim' => $q->pengirim,
                 'kunci' => $q->kunci,
-                'foto' => $q->foto,
+                'tipe' => $q->tipe,
+                'str' => $q->str,
                 'pesan' => $q->pesan,
                 'ket' => $q->ket
             ];
         }
         echo json_encode($api);
+    }
+
+    public function getData()
+    {
+        $user = $this->input->post('user');
+        $query = $this->db->query('SELECT * FROM tb_send WHERE pengirim = "' . $user . '"')->num_rows();
+        $query1 = $this->db->query('SELECT * FROM tb_send WHERE penerima = "' . $user . '"')->num_rows();
+        $api = [
+            'send' => $query,
+            'inbox' => $query1
+        ];
+        echo json_encode($api);
+    }
+
+    public function gen()
+    {
+        $this->load->library('vigen');
+        $id = $this->input->post('id', true);
+        $nama = $this->input->post('nama', true);
+        $tipe = $this->input->post('tipe', true);
+        $str = $this->input->post('str', true);
+        $key = $this->input->post('key', true);
+        $v = $this->vigen->decrypt($key, $str);
+        if ($tipe == 'img') {
+            $v = pack("H*", $v);
+            file_put_contents("assets/file_dec/" . $nama . $id . ".jpg", $v);
+            $api = [
+                'result' => $nama . $id . '.jpg'
+            ];
+        } else if ($tipe == 'txt') {
+            $api = [
+                'result' => $v
+            ];
+        }
+        echo json_encode($api);
+        // echo $v;
+    }
+
+    public function ta()
+    {
+        $this->load->library('vigen');
+        $a = $this->input->post('q', true);
+        $k = 'qwe';
+        $z = $this->vigen->decrypt($k, $a);
+        echo $z;
     }
 }

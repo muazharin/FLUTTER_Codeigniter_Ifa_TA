@@ -70,9 +70,6 @@ class _SignupState extends State<Signup> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      // appBar: AppBar(
-      //   title: Text('Sign Up'),
-      // ),
       body: new SafeArea(
           child: Stack(
         fit: StackFit.expand,

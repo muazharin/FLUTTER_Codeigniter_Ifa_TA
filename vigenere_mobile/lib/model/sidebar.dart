@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vigenere_mobile/main.dart';
 import 'package:vigenere_mobile/model/util.dart';
 
 class Sidebar extends StatefulWidget {

@@ -52,8 +52,8 @@ class _InboxState extends State<Inbox> {
     } else {
       final data = jsonDecode(response.body);
       data.forEach((api) {
-        final ok = new Listinbox(api['pengirim'], api['kunci'], api['foto'],
-            api['pesan'], api['ket']);
+        final ok = new Listinbox(api['id'], api['pengirim'], api['kunci'],
+            api['tipe'], api['str'], api['pesan'], api['ket']);
         listinbox.add(ok);
       });
       setState(() {
@@ -116,7 +116,8 @@ class _InboxState extends State<Inbox> {
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
-                                              Text(res.kunci + ' | ' + res.ket),
+                                              Text(
+                                                  res.tipe + ' | ' + res.kunci),
                                             ],
                                           ),
                                         )
