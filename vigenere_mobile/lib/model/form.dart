@@ -39,6 +39,14 @@ String valMessage(String value) {
   }
 }
 
+String valText(String value) {
+  if (value.length == 0) {
+    return "Text is Required";
+  } else {
+    return null;
+  }
+}
+
 String valEmail(String value) {
   String pattern =
       r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';

@@ -62,6 +62,71 @@ class Api extends CI_Controller
         }
         echo json_encode($data);
     }
+    public function gen()
+    {
+        $this->load->library('vigen');
+        $id = $this->input->post('id', true);
+        $nama = $this->input->post('nama', true);
+        $tipe = $this->input->post('tipe', true);
+        $str = $this->input->post('str', true);
+        $key = $this->input->post('key', true);
+        $v = $this->vigen->decrypt($key, $str);
+        if ($tipe == 'img') {
+            $v = pack("H*", $v);
+            file_put_contents("assets/file_dec/" . $nama . $id . ".jpg", $v);
+            $api = [
+                'result' => $nama . $id . '.jpg'
+            ];
+        } else if ($tipe == 'text') {
+            $api = [
+                'result' => $v
+            ];
+        }
+        echo json_encode($api);
+        // echo $v;
+    }
+    public function sendText()
+    {
+        $text = $this->input->post('text', true);
+        $pengirim = $this->input->post('pengirim', true);
+        $penerima = $this->input->post('penerima', true);
+        $kunci = $this->input->post('kunci', true);
+        $pesan = $this->input->post('pesan', true);
+        $ket = $this->input->post('ket', true);
+        $this->load->library('vigen');
+        $str = $this->vigen->encrypt($kunci, $text);
+
+        $data = [
+            'pengirim' => $pengirim,
+            'penerima' => $penerima,
+            'kunci' => $kunci,
+            'tipe' => 'text',
+            'str' => $str,
+            'pesan' => $pesan,
+            'ket' => $ket
+        ];
+        if ($this->db->insert('tb_send', $data)) {
+            $insert_id = $this->db->insert_id();
+            $data2 = [
+                'id_send' => $insert_id
+            ];
+            $this->db->insert('tb_recent', $data2);
+            $data3 = [
+                'id_send' => $insert_id,
+                'ket_pengirim' => 'no',
+                'ket_penerima' => 'no'
+            ];
+            $this->db->insert('tb_delete', $data3);
+            $api = [
+                'message' => 'Data has been sent'
+            ];
+        } else {
+            $api = [
+                'message' => 'Data failed to sent'
+            ];
+        }
+        echo json_encode($api);
+    }
 
     public function sendImage()
     {
@@ -168,29 +233,7 @@ class Api extends CI_Controller
         echo json_encode($api);
     }
 
-    public function gen()
-    {
-        $this->load->library('vigen');
-        $id = $this->input->post('id', true);
-        $nama = $this->input->post('nama', true);
-        $tipe = $this->input->post('tipe', true);
-        $str = $this->input->post('str', true);
-        $key = $this->input->post('key', true);
-        $v = $this->vigen->decrypt($key, $str);
-        if ($tipe == 'img') {
-            $v = pack("H*", $v);
-            file_put_contents("assets/file_dec/" . $nama . $id . ".jpg", $v);
-            $api = [
-                'result' => $nama . $id . '.jpg'
-            ];
-        } else if ($tipe == 'txt') {
-            $api = [
-                'result' => $v
-            ];
-        }
-        echo json_encode($api);
-        // echo $v;
-    }
+
 
     public function ta()
     {

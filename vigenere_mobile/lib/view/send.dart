@@ -12,6 +12,7 @@ import 'package:image/image.dart' as Img;
 import 'dart:math' as Math;
 import 'package:async/async.dart';
 import 'package:vigenere_mobile/model/listkirim.dart';
+import 'package:vigenere_mobile/view/photoview.dart';
 
 class Send extends StatefulWidget {
   @override
@@ -111,8 +112,9 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
 
   final _keySend = new GlobalKey<FormState>();
   final _keyKey = new GlobalKey<FormState>();
+  final _keySendB = new GlobalKey<FormState>();
   bool _validateSend = false;
-  String to = '', key = '', message = '';
+  String to = '', key = '', message = '', txt = '';
 
   File _image;
 
@@ -167,11 +169,23 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
             filename: path.basename(_image.path)));
         var response = await request.send();
         print(response.toString());
+        String msg = '';
         if (response.statusCode > 2) {
-          print("Upload image successfully");
+          setState(() {
+            msg = 'Upload image successfully';
+          });
         } else {
-          print("Upload image failed");
+          setState(() {
+            msg = 'Upload image failed';
+          });
         }
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                content: new Text(msg),
+              );
+            });
         setState(() {
           _image = null;
           Navigator.pop(context);
@@ -339,6 +353,173 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
     );
   }
 
+  sendText() async {
+    if (_keySendB.currentState.validate()) {
+      _keySendB.currentState.save();
+      // print(to + txt + key + message);
+      final res = await http.post(Baseurl.sendText, body: {
+        'text': txt,
+        'pengirim': user,
+        'penerima': to,
+        'kunci': key,
+        'pesan': message,
+        'ket': 'belum dibaca'
+      });
+      var data = jsonDecode(res.body);
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              // title: new Text('Warning'),
+              content: new Text(data['message']),
+              actions: <Widget>[
+                new FlatButton(
+                  child: new Text("Close"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          });
+    }
+  }
+
+  dialogContentB(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        Container(
+          padding:
+              EdgeInsets.only(top: 16.0, bottom: 16.0, left: 16.0, right: 16.0),
+          margin: EdgeInsets.only(top: 10.0, left: 10.0),
+          decoration: new BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10.0,
+                    offset: const Offset(0.0, 10.0))
+              ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Flexible(
+                child: Column(
+                  children: <Widget>[
+                    Flexible(
+                      flex: 4,
+                      child: Form(
+                        key: _keySendB,
+                        autovalidate: _validateSend,
+                        child: ListView(
+                          children: <Widget>[
+                            TextFormField(
+                              validator: valText,
+                              onSaved: (String val) {
+                                txt = val;
+                              },
+                              maxLines: 3,
+                              decoration: InputDecoration(
+                                  labelText: "Text",
+                                  border: OutlineInputBorder()),
+                            ),
+                            SizedBox(
+                              height: 5.0,
+                            ),
+                            TextFormField(
+                              validator: valTo,
+                              onSaved: (String val) {
+                                to = val;
+                              },
+                              decoration: InputDecoration(
+                                  labelText: "To",
+                                  border: OutlineInputBorder()),
+                            ),
+                            SizedBox(
+                              height: 5.0,
+                            ),
+                            TextFormField(
+                              validator: valKey,
+                              onSaved: (String val) {
+                                key = val;
+                              },
+                              decoration: InputDecoration(
+                                  labelText: "Key",
+                                  border: OutlineInputBorder()),
+                            ),
+                            SizedBox(
+                              height: 5.0,
+                            ),
+                            TextFormField(
+                              validator: valMessage,
+                              onSaved: (String val) {
+                                message = val;
+                              },
+                              maxLines: 5,
+                              decoration: InputDecoration(
+                                  labelText: "Message",
+                                  border: OutlineInputBorder()),
+                            ),
+                            SizedBox(
+                              height: 8.0,
+                            ),
+                            InkWell(
+                              child: Container(
+                                width: double.infinity,
+                                height: 56.0,
+                                decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    borderRadius: BorderRadius.circular(4.0)),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: sendText,
+                                    child: Center(
+                                      child: Text(
+                                        "Send",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                            letterSpacing: 1.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+        InkWell(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(
+            child: Center(
+              child: Text("X"),
+            ),
+            width: 30.0,
+            height: 30.0,
+            decoration: new BoxDecoration(
+                border: Border.all(width: 1),
+                borderRadius: BorderRadius.circular(500.0),
+                shape: BoxShape.rectangle,
+                color: Colors.white),
+          ),
+        )
+      ],
+    );
+  }
+
   @override
   dispose() {
     _animationController.dispose();
@@ -381,7 +562,19 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
     return Container(
       child: FloatingActionButton(
         heroTag: "btnTeks",
-        onPressed: () {},
+        onPressed: () {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Dialog(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0)),
+                  elevation: 0.0,
+                  backgroundColor: Colors.transparent,
+                  child: dialogContentB(context),
+                );
+              });
+        },
         tooltip: 'Teks',
         child: Icon(Icons.text_fields),
       ),
@@ -449,6 +642,24 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
                           void generateKey() async {
                             if (_keyKey.currentState.validate()) {
                               _keyKey.currentState.save();
+                              if (pws != res.kunci) {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: new Text('Warning'),
+                                        content: new Text('Incorrect Key'),
+                                        actions: <Widget>[
+                                          new FlatButton(
+                                            child: new Text("Close"),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    });
+                              }
                               final gen = await http.post(Baseurl.gen, body: {
                                 'id': res.id,
                                 'nama': user,
@@ -457,22 +668,70 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
                                 'key': pws
                               });
                               var enc = jsonDecode(gen.body);
-                              var end = enc['result'];
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: new Text('Encryption Result'),
-                                      content: new Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: <Widget>[
-                                          Image.network(Baseurl.ip +
-                                              '/ifa_ta/assets/file_dec/' +
-                                              end),
+                              String end = enc['result'];
+                              Navigator.pop(context);
+                              if (res.tipe == 'img') {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => new Photos(end),
+                                  ),
+                                );
+                              } else if (res.tipe == 'text') {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Detail'),
+                                        content: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            Row(
+                                              children: <Widget>[
+                                                Text('To '),
+                                                SizedBox(width: 48.0),
+                                                Text(':'),
+                                                Text(res.penerima),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: <Widget>[
+                                                Text('Key '),
+                                                SizedBox(width: 40.0),
+                                                Text(':'),
+                                                Text(res.kunci),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: <Widget>[
+                                                Text('Message '),
+                                                Text(':'),
+                                                Text(res.pesan),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: <Widget>[
+                                                Text('Text '),
+                                                SizedBox(width: 34.0),
+                                                Text(':'),
+                                                Text(end),
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                        actions: <Widget>[
+                                          new FlatButton(
+                                            child: new Text("Close"),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                          ),
                                         ],
-                                      ),
-                                    );
-                                  });
+                                      );
+                                    });
+                              }
                             }
                           }
 
