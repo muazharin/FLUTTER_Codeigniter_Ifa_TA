@@ -168,28 +168,49 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
         request.files.add(http.MultipartFile("image", stream, length,
             filename: path.basename(_image.path)));
         var response = await request.send();
-        print(response.toString());
-        String msg = '';
-        if (response.statusCode > 2) {
-          setState(() {
-            msg = 'Upload image successfully';
-          });
+        if (response.contentLength != 2) {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  content: new Text('Upload image successfully'),
+                  actions: <Widget>[
+                    new FlatButton(
+                      child: new Text("Close"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          _image = null;
+                        });
+                        Navigator.pop(context);
+                        Navigator.pushReplacementNamed(context, '/dashboard');
+                      },
+                    ),
+                  ],
+                );
+              });
         } else {
-          setState(() {
-            msg = 'Upload image failed';
-          });
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  content: new Text('Upload image failed'),
+                  actions: <Widget>[
+                    new FlatButton(
+                      child: new Text("Close"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          _image = null;
+                        });
+                        Navigator.pop(context);
+                        Navigator.pushReplacementNamed(context, '/dashboard');
+                      },
+                    ),
+                  ],
+                );
+              });
         }
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                content: new Text(msg),
-              );
-            });
-        setState(() {
-          _image = null;
-          Navigator.pop(context);
-        });
       } catch (e) {
         debugPrint("Error $e");
       }
@@ -356,7 +377,6 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
   sendText() async {
     if (_keySendB.currentState.validate()) {
       _keySendB.currentState.save();
-      // print(to + txt + key + message);
       final res = await http.post(Baseurl.sendText, body: {
         'text': txt,
         'pengirim': user,
@@ -378,6 +398,7 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
                   child: new Text("Close"),
                   onPressed: () {
                     Navigator.pop(context);
+                    Navigator.pushReplacementNamed(context, '/dashboard');
                   },
                 ),
               ],
@@ -640,7 +661,6 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
                         itemCount: listkirim == null ? 0 : listkirim.length,
                         itemBuilder: (context, i) {
                           final res = listkirim[i];
-                          print(res.tipe);
                           String pws = '';
                           void generateKey() async {
                             if (_keyKey.currentState.validate()) {
@@ -838,6 +858,16 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
                                                 ],
                                               ),
                                             ),
+                                            // InkWell(
+                                            //     onTap: () {
+                                            //       print('download');
+                                            //     },
+                                            //     child: Padding(
+                                            //       padding:
+                                            //           const EdgeInsets.all(8.0),
+                                            //       child:
+                                            //           Icon(Icons.file_download),
+                                            //     )),
                                             InkWell(
                                               onTap: () {
                                                 showDialog(

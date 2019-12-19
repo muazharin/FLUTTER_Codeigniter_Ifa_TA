@@ -10,7 +10,7 @@ class Sidebar extends StatefulWidget {
 enum LoginStatus { notSignIn, signIn }
 
 class _SidebarState extends State<Sidebar> {
-  LoginStatus _loginStatus = LoginStatus.notSignIn;
+  LoginStatus loginStatus = LoginStatus.notSignIn;
   var util = new Util.initialized();
   String name;
   String email;
@@ -31,8 +31,8 @@ class _SidebarState extends State<Sidebar> {
       sharedPreferences.setString("username", null);
       sharedPreferences.setString("email", null);
       sharedPreferences.setString("hp", null);
-      sharedPreferences.commit();
-      _loginStatus = LoginStatus.notSignIn;
+      // sharedPreferences.commit();
+      loginStatus = LoginStatus.notSignIn;
       Navigator.pop(context);
       Navigator.pushReplacementNamed(context, '/main');
     });

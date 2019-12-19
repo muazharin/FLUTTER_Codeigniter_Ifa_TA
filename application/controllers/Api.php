@@ -220,13 +220,28 @@ class Api extends CI_Controller
 
     public function getData()
     {
-        $user = $this->input->post('user');
-        $query = $this->db->query('SELECT a.* FROM tb_send a, tb_delete b WHERE pengirim = "' . $user . '" AND b.ket_pengirim = "' . $user . '"')->num_rows();
-        $query1 = $this->db->query('SELECT a.* FROM tb_send a, tb_delete b WHERE penerima = "' . $user . '" AND b.ket_penerima = "' . $user . '"')->num_rows();
+        $user = $this->input->post('user', true);
+        $query = $this->db->query('SELECT * FROM tb_send LEFT JOIN tb_delete ON tb_send.id_send = tb_delete.id_send WHERE tb_delete.ket_pengirim="' . $user . '"')->num_rows();
+        $query1 = $this->db->query('SELECT * FROM tb_send LEFT JOIN tb_delete ON tb_send.id_send = tb_delete.id_send WHERE tb_delete.ket_penerima="' . $user . '"')->num_rows();
         $api = [
             'send' => $query,
             'inbox' => $query1
         ];
+        echo json_encode($api);
+    }
+
+    public function getRecent()
+    {
+        $user = $this->input->post('user', true);
+        $query = $this->db->query('SELECT tb_send.id_send, tb_send.pengirim, tb_send.penerima, tb_send.tipe FROM tb_send LEFT JOIN tb_recent ON tb_send.id_send = tb_recent.id_send WHERE tb_send.pengirim="' . $user . '" ORDER BY id_send ASC');
+        $query1 = $query->result();
+        foreach ($query1 as $q1) {
+            $api[] = [
+                'pengirim' => $q1->pengirim,
+                'penerima' => $q1->penerima,
+                'tipe' => $q1->tipe
+            ];
+        }
         echo json_encode($api);
     }
 
@@ -246,13 +261,29 @@ class Api extends CI_Controller
         echo json_encode($api);
     }
 
-
-    public function ta()
+    public function deleteInbox()
     {
-        $this->load->library('vigen');
-        $a = $this->input->post('q', true);
-        $k = 'qwe';
-        $z = $this->vigen->decrypt($k, $a);
-        echo $z;
+        $id = $this->input->post('id_send');
+        $query = $this->db->query('UPDATE tb_delete SET ket_penerima="no" WHERE id_send = "' . $id . '"');
+        if ($query) {
+            $api = [
+                'result' => 'Data successfully deleted!'
+            ];
+        } else {
+            $api = [
+                'result' => 'A delete error occurred'
+            ];
+        }
+        echo json_encode($api);
     }
+
+
+    // public function ta()
+    // {
+    //     $this->load->library('vigen');
+    //     $a = $this->input->post('q', true);
+    //     $k = 'qwe';
+    //     $z = $this->vigen->decrypt($k, $a);
+    //     echo $z;
+    // }
 }

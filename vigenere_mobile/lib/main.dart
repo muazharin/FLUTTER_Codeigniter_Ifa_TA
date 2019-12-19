@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:vigenere_mobile/model/baseurl.dart';
 import 'package:vigenere_mobile/view/dashboard.dart';
 import 'package:vigenere_mobile/model/util.dart';
+import 'package:vigenere_mobile/view/send.dart';
 import 'package:vigenere_mobile/view/signup.dart';
 
 void main() => runApp(MyApp());
@@ -21,7 +22,9 @@ class MyApp extends StatelessWidget {
       home: MyHomePage(title: 'Ifa App'),
       debugShowCheckedModeBanner: false,
       routes: <String, WidgetBuilder>{
-        '/main': (BuildContext context) => MyHomePage()
+        '/main': (BuildContext context) => MyHomePage(),
+        '/dashboard': (BuildContext context) => Dashboard(),
+        '/send': (BuildContext context) => Send(),
       },
     );
   }
@@ -39,7 +42,7 @@ class MyHomePage extends StatefulWidget {
 enum LoginStatus { notSignIn, signIn }
 
 class _MyHomePageState extends State<MyHomePage> {
-  LoginStatus _loginStatus = LoginStatus.notSignIn;
+  LoginStatus loginStatus = LoginStatus.notSignIn;
   String _username = '', _password = '';
   final _key = new GlobalKey<FormState>();
   bool _validate = false;
@@ -65,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
       String hp = datauser[0]['hp'];
       if (value == 1) {
         setState(() {
-          _loginStatus = LoginStatus.signIn;
+          loginStatus = LoginStatus.signIn;
           savePref(value, username, email, hp);
         });
       } else {
@@ -100,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
       sharedPreferences.setString("username", username);
       sharedPreferences.setString("email", email);
       sharedPreferences.setString("hp", hp);
-      sharedPreferences.commit();
+      // sharedPreferences.commit();
     });
     print(util.getUsername());
   }
@@ -111,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       value = sharedPreferences.getInt('value');
 
-      _loginStatus = value == 1 ? LoginStatus.signIn : LoginStatus.notSignIn;
+      loginStatus = value == 1 ? LoginStatus.signIn : LoginStatus.notSignIn;
     });
   }
 
@@ -123,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    switch (_loginStatus) {
+    switch (loginStatus) {
       case LoginStatus.notSignIn:
         return Scaffold(
           resizeToAvoidBottomPadding: false,
