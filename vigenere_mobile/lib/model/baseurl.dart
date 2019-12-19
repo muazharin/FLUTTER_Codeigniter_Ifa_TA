@@ -9,4 +9,5 @@ class Baseurl {
   static String signup = "$ip/ifa_ta/api/signup";
   static String usercheck = "$ip/ifa_ta/api/usercheck";
   static String gen = "$ip/ifa_ta/api/gen";
+  static String deleteSend = "$ip/ifa_ta/api/deleteSend";
 }

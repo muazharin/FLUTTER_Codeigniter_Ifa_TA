@@ -366,6 +366,7 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
         'ket': 'belum dibaca'
       });
       var data = jsonDecode(res.body);
+      Navigator.pop(context);
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -595,9 +596,11 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
     );
   }
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       floatingActionButton: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.end,
@@ -659,78 +662,58 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
                                         ],
                                       );
                                     });
-                              }
-                              final gen = await http.post(Baseurl.gen, body: {
-                                'id': res.id,
-                                'nama': user,
-                                'tipe': res.tipe,
-                                'str': res.str,
-                                'key': pws
-                              });
-                              var enc = jsonDecode(gen.body);
-                              String end = enc['result'];
-                              Navigator.pop(context);
-                              if (res.tipe == 'img') {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => new Photos(end),
-                                  ),
-                                );
-                              } else if (res.tipe == 'text') {
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text('Detail'),
-                                        content: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            Row(
+                              } else {
+                                final gen = await http.post(Baseurl.gen, body: {
+                                  'id': res.id,
+                                  'nama': user,
+                                  'tipe': res.tipe,
+                                  'str': res.str,
+                                  'key': pws
+                                });
+                                var enc = jsonDecode(gen.body);
+                                String end = enc['result'];
+                                Navigator.pop(context);
+                                if (res.tipe == 'img') {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => new Photos(end),
+                                    ),
+                                  );
+                                } else if (res.tipe == 'text') {
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text('Detail'),
+                                          content: SingleChildScrollView(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisSize: MainAxisSize.min,
                                               children: <Widget>[
-                                                Text('To '),
-                                                SizedBox(width: 48.0),
-                                                Text(':'),
+                                                Text('To :'),
                                                 Text(res.penerima),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: <Widget>[
-                                                Text('Key '),
-                                                SizedBox(width: 40.0),
-                                                Text(':'),
+                                                Text('Key :'),
                                                 Text(res.kunci),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: <Widget>[
-                                                Text('Message '),
-                                                Text(':'),
+                                                Text('Message :'),
                                                 Text(res.pesan),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: <Widget>[
-                                                Text('Text '),
-                                                SizedBox(width: 34.0),
-                                                Text(':'),
+                                                Text('Text :'),
                                                 Text(end),
                                               ],
-                                            )
-                                          ],
-                                        ),
-                                        actions: <Widget>[
-                                          new FlatButton(
-                                            child: new Text("Close"),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
+                                            ),
                                           ),
-                                        ],
-                                      );
-                                    });
+                                          actions: <Widget>[
+                                            new FlatButton(
+                                              child: new Text("Close"),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                }
                               }
                             }
                           }
@@ -853,6 +836,86 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
                                                       ' | ' +
                                                       res.kunci),
                                                 ],
+                                              ),
+                                            ),
+                                            InkWell(
+                                              onTap: () {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return AlertDialog(
+                                                        title: Text('Delete'),
+                                                        content: new Text(
+                                                            'Do you want to delete this data?'),
+                                                        actions: <Widget>[
+                                                          new FlatButton(
+                                                            child: new Text(
+                                                                "Cancel"),
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                          ),
+                                                          new FlatButton(
+                                                            child:
+                                                                new Text("Yes"),
+                                                            onPressed:
+                                                                () async {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              final source =
+                                                                  await http.post(
+                                                                      Baseurl
+                                                                          .deleteSend,
+                                                                      body: {
+                                                                    'id_send':
+                                                                        res.id
+                                                                  });
+                                                              var resSend =
+                                                                  jsonDecode(
+                                                                      source
+                                                                          .body);
+                                                              String varSend =
+                                                                  resSend[
+                                                                      'result'];
+                                                              _scaffoldKey
+                                                                  .currentState
+                                                                  .showSnackBar(
+                                                                      SnackBar(
+                                                                content: Text(
+                                                                    varSend),
+                                                                action:
+                                                                    SnackBarAction(
+                                                                  label: 'Ok',
+                                                                  textColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  onPressed:
+                                                                      () {
+                                                                    _scaffoldKey
+                                                                        .currentState
+                                                                        .mounted;
+                                                                  },
+                                                                ),
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .green,
+                                                                duration:
+                                                                    Duration(
+                                                                        seconds:
+                                                                            3),
+                                                              ));
+                                                            },
+                                                          ),
+                                                        ],
+                                                      );
+                                                    });
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child:
+                                                    Icon(Icons.delete_outline),
                                               ),
                                             )
                                           ],

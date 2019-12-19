@@ -7,6 +7,6 @@ class Listkirim {
   final String pesan;
   final String ket;
 
-  Listkirim(this.id,
-      this.penerima, this.kunci, this.tipe, this.str, this.pesan, this.ket);
+  Listkirim(this.id, this.penerima, this.kunci, this.tipe, this.str, this.pesan,
+      this.ket);
 }

@@ -83,7 +83,6 @@ class Api extends CI_Controller
             ];
         }
         echo json_encode($api);
-        // echo $v;
     }
     public function sendText()
     {
@@ -113,8 +112,8 @@ class Api extends CI_Controller
             $this->db->insert('tb_recent', $data2);
             $data3 = [
                 'id_send' => $insert_id,
-                'ket_pengirim' => 'no',
-                'ket_penerima' => 'no'
+                'ket_pengirim' => $pengirim,
+                'ket_penerima' => $penerima
             ];
             $this->db->insert('tb_delete', $data3);
             $api = [
@@ -165,8 +164,8 @@ class Api extends CI_Controller
                 $this->db->insert('tb_recent', $data2);
                 $data3 = [
                     'id_send' => $insert_id,
-                    'ket_pengirim' => 'no',
-                    'ket_penerima' => 'no'
+                    'ket_pengirim' => $pengirim,
+                    'ket_penerima' => $penerima
                 ];
                 $this->db->insert('tb_delete', $data3);
                 $api = [
@@ -184,8 +183,7 @@ class Api extends CI_Controller
     public function getDataKirim()
     {
         $pengirim = $this->input->post('pengirim', true);
-        $this->db->where('pengirim', $pengirim);
-        $query = $this->db->get('tb_send')->result();
+        $query = $this->db->query('SELECT a.* FROM tb_send a, tb_delete b WHERE a.id_send = b.id_send AND b.ket_pengirim = "' . $pengirim . '"')->result();
         $api = array();
         foreach ($query as $q) {
             $api[] = [
@@ -195,7 +193,7 @@ class Api extends CI_Controller
                 'tipe' => $q->tipe,
                 'str' => $q->str,
                 'pesan' => $q->pesan,
-                'ket' => $q->ket
+                'ket' => $q->ket,
             ];
         }
         echo json_encode($api);
@@ -204,8 +202,7 @@ class Api extends CI_Controller
     public function getDataInbox()
     {
         $penerima = $this->input->post('penerima', true);
-        $this->db->where('penerima', $penerima);
-        $query = $this->db->get('tb_send')->result();
+        $query = $this->db->query('SELECT a.* FROM tb_send a, tb_delete b WHERE a.id_send = b.id_send AND b.ket_penerima = "' . $penerima . '"')->result();
         $api = array();
         foreach ($query as $q) {
             $api[] = [
@@ -224,8 +221,8 @@ class Api extends CI_Controller
     public function getData()
     {
         $user = $this->input->post('user');
-        $query = $this->db->query('SELECT * FROM tb_send WHERE pengirim = "' . $user . '"')->num_rows();
-        $query1 = $this->db->query('SELECT * FROM tb_send WHERE penerima = "' . $user . '"')->num_rows();
+        $query = $this->db->query('SELECT a.* FROM tb_send a, tb_delete b WHERE pengirim = "' . $user . '" AND b.ket_pengirim = "' . $user . '"')->num_rows();
+        $query1 = $this->db->query('SELECT a.* FROM tb_send a, tb_delete b WHERE penerima = "' . $user . '" AND b.ket_penerima = "' . $user . '"')->num_rows();
         $api = [
             'send' => $query,
             'inbox' => $query1
@@ -233,6 +230,21 @@ class Api extends CI_Controller
         echo json_encode($api);
     }
 
+    public function deleteSend()
+    {
+        $id = $this->input->post('id_send');
+        $query = $this->db->query('UPDATE tb_delete SET ket_pengirim="no" WHERE id_send = "' . $id . '"');
+        if ($query) {
+            $api = [
+                'result' => 'Data successfully deleted!'
+            ];
+        } else {
+            $api = [
+                'result' => 'A delete error occurred'
+            ];
+        }
+        echo json_encode($api);
+    }
 
 
     public function ta()
