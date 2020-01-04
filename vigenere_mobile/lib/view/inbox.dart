@@ -13,6 +13,7 @@ class Inbox extends StatefulWidget {
 }
 
 class _InboxState extends State<Inbox> {
+  var waktu = 0;
   String user = '';
   getPref() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -110,6 +111,7 @@ class _InboxState extends State<Inbox> {
                                         );
                                       });
                                 } else {
+                                  var tStart = new Stopwatch()..start();
                                   final gen = await http.post(Baseurl.gen,
                                       body: {
                                         'id': res.id,
@@ -119,15 +121,59 @@ class _InboxState extends State<Inbox> {
                                         'key': pws
                                       });
                                   var enc = jsonDecode(gen.body);
+                                  waktu = tStart.elapsedMilliseconds;
                                   String end = enc['result'];
                                   Navigator.pop(context);
                                   if (res.tipe == 'img') {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => new Photos(end),
-                                      ),
-                                    );
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('Detail'),
+                                            content: SingleChildScrollView(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  Expanded(
+                                                    child: RaisedButton(
+                                                      child: Text(
+                                                          'Show The Picture'),
+                                                      onPressed: () {
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    new Photos(
+                                                                        end),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                  Text('\nTo :'),
+                                                  Text('\t' + res.pengirim),
+                                                  Text('\nKey :'),
+                                                  Text('\t' + res.kunci),
+                                                  Text('\nMessage :'),
+                                                  Text('\t' + res.pesan),
+                                                  Text('\nTime execution :'),
+                                                  Text('\t $waktu ms'),
+                                                ],
+                                              ),
+                                            ),
+                                            actions: <Widget>[
+                                              new FlatButton(
+                                                child: new Text("Close"),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        });
                                   } else if (res.tipe == 'text') {
                                     showDialog(
                                         context: context,
@@ -141,13 +187,15 @@ class _InboxState extends State<Inbox> {
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: <Widget>[
                                                   Text('To :'),
-                                                  Text(res.pengirim),
-                                                  Text('Key :'),
-                                                  Text(res.kunci),
-                                                  Text('Message :'),
-                                                  Text(res.pesan),
-                                                  Text('Text :'),
-                                                  Text(end),
+                                                  Text('\t' + res.pengirim),
+                                                  Text('\nKey :'),
+                                                  Text('\t' + res.kunci),
+                                                  Text('\nMessage :'),
+                                                  Text('\t' + res.pesan),
+                                                  Text('\nText :'),
+                                                  Text('\t' + end),
+                                                  Text('\nTime execution :'),
+                                                  Text('\t $waktu ms'),
                                                 ],
                                               ),
                                             ),
