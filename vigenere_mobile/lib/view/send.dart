@@ -13,6 +13,7 @@ import 'dart:math' as Math;
 import 'package:async/async.dart';
 import 'package:vigenere_mobile/model/listkirim.dart';
 import 'package:vigenere_mobile/view/photoview.dart';
+import 'package:file_picker/file_picker.dart';
 
 class Send extends StatefulWidget {
   @override
@@ -27,6 +28,7 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
   Animation<double> _translateButton;
   Curve _curve = Curves.easeOut;
   double _fabHeight = 56.0;
+  var waktu = 0;
 
   String user = '';
 
@@ -113,10 +115,11 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
   final _keySend = new GlobalKey<FormState>();
   final _keyKey = new GlobalKey<FormState>();
   final _keySendB = new GlobalKey<FormState>();
+  final _keySendC = new GlobalKey<FormState>();
   bool _validateSend = false;
   String to = '', key = '', message = '', txt = '';
 
-  File _image;
+  File _image, video;
 
   Future getImageGallery() async {
     var imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -152,10 +155,241 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
     });
   }
 
+  // Future getVideo() async {
+  //   var imageFile = await ImagePicker.pickVideo(source: ImageSource.gallery);
+  //   final tempDir = await getTemporaryDirectory();
+  //   final path = tempDir.path;
+  //   int rand = new Math.Random().nextInt(100000);
+
+  //   // Img.Image image = Img.decodeImage(imageFile.readAsBytesSync());
+  //   // Img.Image smallerImg = Img.copyResize(image, width: 500);
+
+  //   var compressImg = new File("$path/image_$rand.jpg")
+  //     ..writeAsBytesSync(bytes)
+
+  //   setState(() {
+  //     video = compressImg;
+  //   });
+  // }
+
+  // sendVideo() async {
+  //   if (_keySendC.currentState.validate()) {
+  //     _keySendC.currentState.save();
+  //     try {
+  //       var stream = http.ByteStream(DelegatingStream.typed(video.openRead()));
+  //       var length = await video.length();
+  //       var uri = Uri.parse(Baseurl.sendVideo);
+  //       var request = http.MultipartRequest("POST", uri);
+  //       request.fields['pengirim'] = user;
+  //       request.fields['penerima'] = to;
+  //       request.fields['kunci'] = key;
+  //       request.fields['pesan'] = message;
+  //       request.fields['ket'] = "belum dibaca";
+  //       request.files.add(http.MultipartFile("video", stream, length,
+  //           filename: path.basename(_image.path)));
+  //       var response = await request.send();
+  //       if (response.contentLength != 2) {
+  //         showDialog(
+  //             context: context,
+  //             builder: (BuildContext context) {
+  //               return AlertDialog(
+  //                 content: new Text('Upload video successfully'),
+  //                 actions: <Widget>[
+  //                   new FlatButton(
+  //                     child: new Text("Close"),
+  //                     onPressed: () {
+  //                       Navigator.pop(context);
+  //                       setState(() {
+  //                         _image = null;
+  //                       });
+  //                       Navigator.pop(context);
+  //                       Navigator.pushReplacementNamed(context, '/dashboard');
+  //                     },
+  //                   ),
+  //                 ],
+  //               );
+  //             });
+  //       } else {
+  //         showDialog(
+  //             context: context,
+  //             builder: (BuildContext context) {
+  //               return AlertDialog(
+  //                 content: new Text('Upload image failed'),
+  //                 actions: <Widget>[
+  //                   new FlatButton(
+  //                     child: new Text("Close"),
+  //                     onPressed: () {
+  //                       Navigator.pop(context);
+  //                       setState(() {
+  //                         _image = null;
+  //                       });
+  //                       Navigator.pop(context);
+  //                       Navigator.pushReplacementNamed(context, '/dashboard');
+  //                     },
+  //                   ),
+  //                 ],
+  //               );
+  //             });
+  //       }
+  //     } catch (e) {
+  //       debugPrint("Error $e");
+  //     }
+  //   }
+  // }
+
+  // dialogContentC(BuildContext context) {
+  //   return Stack(
+  //     children: <Widget>[
+  //       Container(
+  //         padding:
+  //             EdgeInsets.only(top: 16.0, bottom: 16.0, left: 16.0, right: 16.0),
+  //         margin: EdgeInsets.only(top: 10.0, left: 10.0),
+  //         decoration: new BoxDecoration(
+  //             color: Colors.white,
+  //             shape: BoxShape.rectangle,
+  //             borderRadius: BorderRadius.circular(16),
+  //             boxShadow: [
+  //               BoxShadow(
+  //                   color: Colors.black26,
+  //                   blurRadius: 10.0,
+  //                   offset: const Offset(0.0, 10.0))
+  //             ]),
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: <Widget>[
+  //             Flexible(
+  //               child: Column(
+  //                 children: <Widget>[
+  //                   Flexible(
+  //                     flex: 4,
+  //                     child: Form(
+  //                       key: _keySendC,
+  //                       autovalidate: _validateSend,
+  //                       child: ListView(
+  //                         children: <Widget>[
+  //                           Center(
+  //                             child: _image == null
+  //                                 ? Container(
+  //                                     height: 150.0,
+  //                                     color: Colors.grey[300],
+  //                                     child: Center(
+  //                                       child: Text("No File Selected!"),
+  //                                     ),
+  //                                   )
+  //                                 : Container(
+  //                                     height: 150.0,
+  //                                     color: Colors.green[300],
+  //                                     child: Center(
+  //                                       child: Text("File Selected!"),
+  //                                     ),
+  //                                   ),
+  //                           ),
+  //                           Row(
+  //                             children: <Widget>[
+  //                               Expanded(
+  //                                 child: RaisedButton(
+  //                                     onPressed: getVideo,
+  //                                     child: Icon(Icons.video_library)),
+  //                               ),
+  //                             ],
+  //                           ),
+  //                           TextFormField(
+  //                             validator: valTo,
+  //                             onSaved: (String val) {
+  //                               to = val;
+  //                             },
+  //                             decoration: InputDecoration(
+  //                                 labelText: "To",
+  //                                 border: OutlineInputBorder()),
+  //                           ),
+  //                           SizedBox(
+  //                             height: 5.0,
+  //                           ),
+  //                           TextFormField(
+  //                             validator: valKey,
+  //                             onSaved: (String val) {
+  //                               key = val;
+  //                             },
+  //                             decoration: InputDecoration(
+  //                                 labelText: "Key",
+  //                                 border: OutlineInputBorder()),
+  //                           ),
+  //                           SizedBox(
+  //                             height: 5.0,
+  //                           ),
+  //                           TextFormField(
+  //                             validator: valMessage,
+  //                             onSaved: (String val) {
+  //                               message = val;
+  //                             },
+  //                             maxLines: 5,
+  //                             decoration: InputDecoration(
+  //                                 labelText: "Message",
+  //                                 border: OutlineInputBorder()),
+  //                           ),
+  //                           SizedBox(
+  //                             height: 8.0,
+  //                           ),
+  //                           InkWell(
+  //                             child: Container(
+  //                               width: double.infinity,
+  //                               height: 56.0,
+  //                               decoration: BoxDecoration(
+  //                                   color: Colors.blue,
+  //                                   borderRadius: BorderRadius.circular(4.0)),
+  //                               child: Material(
+  //                                 color: Colors.transparent,
+  //                                 child: InkWell(
+  //                                   onTap: sendVideo,
+  //                                   child: Center(
+  //                                     child: Text(
+  //                                       "Send",
+  //                                       style: TextStyle(
+  //                                           color: Colors.white,
+  //                                           fontSize: 15,
+  //                                           letterSpacing: 1.0),
+  //                                     ),
+  //                                   ),
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                           ),
+  //                         ],
+  //                       ),
+  //                     ),
+  //                   )
+  //                 ],
+  //               ),
+  //             )
+  //           ],
+  //         ),
+  //       ),
+  //       InkWell(
+  //         onTap: () {
+  //           Navigator.pop(context);
+  //         },
+  //         child: Container(
+  //           child: Center(
+  //             child: Text("X"),
+  //           ),
+  //           width: 30.0,
+  //           height: 30.0,
+  //           decoration: new BoxDecoration(
+  //               border: Border.all(width: 1),
+  //               borderRadius: BorderRadius.circular(500.0),
+  //               shape: BoxShape.rectangle,
+  //               color: Colors.white),
+  //         ),
+  //       )
+  //     ],
+  //   );
+  // }
+
   sendImage() async {
     if (_keySend.currentState.validate()) {
       _keySend.currentState.save();
       try {
+        var tStart = new Stopwatch()..start();
         var stream = http.ByteStream(DelegatingStream.typed(_image.openRead()));
         var length = await _image.length();
         var uri = Uri.parse(Baseurl.sendImage);
@@ -167,13 +401,15 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
         request.fields['ket'] = "belum dibaca";
         request.files.add(http.MultipartFile("image", stream, length,
             filename: path.basename(_image.path)));
+        waktu = tStart.elapsedMilliseconds;
         var response = await request.send();
         if (response.contentLength != 2) {
           showDialog(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  content: new Text('Upload image successfully'),
+                  content: new Text(
+                      'Upload image successfully!\nExecution Time is $waktu ms'),
                   actions: <Widget>[
                     new FlatButton(
                       child: new Text("Close"),
@@ -377,6 +613,7 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
   sendText() async {
     if (_keySendB.currentState.validate()) {
       _keySendB.currentState.save();
+      var tStart = new Stopwatch()..start();
       final res = await http.post(Baseurl.sendText, body: {
         'text': txt,
         'pengirim': user,
@@ -386,13 +623,15 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
         'ket': 'belum dibaca'
       });
       var data = jsonDecode(res.body);
+      waktu = tStart.elapsedMilliseconds;
       Navigator.pop(context);
       showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               // title: new Text('Warning'),
-              content: new Text(data['message']),
+              content:
+                  new Text(data['message'] + '\nTime Execution is $waktu ms'),
               actions: <Widget>[
                 new FlatButton(
                   child: new Text("Close"),
@@ -557,6 +796,29 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
     isOpened = !isOpened;
   }
 
+  Widget video1() {
+    return Container(
+      child: FloatingActionButton(
+        heroTag: "btnVideo",
+        onPressed: () {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Dialog(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0)),
+                  elevation: 0.0,
+                  backgroundColor: Colors.transparent,
+                  // child: dialogContentC(context),
+                );
+              });
+        },
+        tooltip: 'Video',
+        child: Icon(Icons.video_library),
+      ),
+    );
+  }
+
   Widget gambar() {
     return Container(
       child: FloatingActionButton(
@@ -626,6 +888,14 @@ class _SendState extends State<Send> with SingleTickerProviderStateMixin {
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
+          // Transform(
+          //   transform: Matrix4.translationValues(
+          //     0.0,
+          //     _translateButton.value * 3.0,
+          //     0.0,
+          //   ),
+          //   child: video1(),
+          // ),
           Transform(
             transform: Matrix4.translationValues(
               0.0,

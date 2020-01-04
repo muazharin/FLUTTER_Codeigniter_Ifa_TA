@@ -77,13 +77,22 @@ class Api extends CI_Controller
             $api = [
                 'result' => $nama . $id . '.jpg'
             ];
-        } else if ($tipe == 'text') {
+        }
+        //  else if ($tipe == 'mp4') {
+        //     $v = pack("H*", $v);
+        //     file_put_contents("assets/file_dec/" . $nama . $id . ".mp4", $v);
+        //     $api = [
+        //         'result' => $nama . $id . '.mp4'
+        //     ];
+        // }
+        else if ($tipe == 'text') {
             $api = [
                 'result' => $v
             ];
         }
         echo json_encode($api);
     }
+
     public function sendText()
     {
         $text = $this->input->post('text', true);
@@ -180,10 +189,63 @@ class Api extends CI_Controller
         echo json_encode($api);
     }
 
+    // public function sendVideo()
+    // {
+    //     $this->load->library('vigen');
+    //     $pengirim = $this->input->post('pengirim', true);
+    //     $penerima = $this->input->post('penerima', true);
+    //     $kunci = $this->input->post('kunci', true);
+    //     $pesan = $this->input->post('pesan', true);
+    //     $ket = $this->input->post('ket', true);
+    //     $this->load->library('upload');
+    //     $config['upload_path'] = './assets/file_kirim';
+    //     $config['allowed_types'] = 'mp4|MP4';
+    //     $config['file_name'] = $_FILES['video']['name'];
+    //     $this->upload->initialize($config);
+    //     if (!empty($_FILES['video']['name'])) {
+    //         if ($this->upload->do_upload('video')) {
+    //             $foto = $this->upload->data();
+    //             $hex = unpack("H*", file_get_contents('assets/file_kirim/' . $foto['file_name']));
+    //             $hex = current($hex);
+    //             $hex = $this->vigen->encrypt($kunci, $hex);
+    //             file_put_contents("assets/file_enc/" . $foto['file_name'], $hex);
+    //             $data = [
+    //                 'pengirim' => $pengirim,
+    //                 'penerima' => $penerima,
+    //                 'kunci' => $kunci,
+    //                 'tipe' => 'mp4',
+    //                 'str' => $hex,
+    //                 'pesan' => $pesan,
+    //                 'ket' => $ket
+    //             ];
+    //             $this->db->insert('tb_send', $data);
+    //             $insert_id = $this->db->insert_id();
+    //             $data2 = [
+    //                 'id_send' => $insert_id
+    //             ];
+    //             $this->db->insert('tb_recent', $data2);
+    //             $data3 = [
+    //                 'id_send' => $insert_id,
+    //                 'ket_pengirim' => $pengirim,
+    //                 'ket_penerima' => $penerima
+    //             ];
+    //             $this->db->insert('tb_delete', $data3);
+    //             $api = [
+    //                 'message' => 'Data has been sent'
+    //             ];
+    //         } else {
+    //             $api = [
+    //                 'message' => 'Data failed to sent'
+    //             ];
+    //         }
+    //     }
+    //     echo json_encode($api);
+    // }
+
     public function getDataKirim()
     {
         $pengirim = $this->input->post('pengirim', true);
-        $query = $this->db->query('SELECT a.* FROM tb_send a, tb_delete b WHERE a.id_send = b.id_send AND b.ket_pengirim = "' . $pengirim . '"')->result();
+        $query = $this->db->query('SELECT a.* FROM tb_send a, tb_delete b WHERE a.id_send = b.id_send AND b.ket_pengirim = "' . $pengirim . '" ORDER BY a.id_send DESC ')->result();
         $api = array();
         foreach ($query as $q) {
             $api[] = [
@@ -202,7 +264,7 @@ class Api extends CI_Controller
     public function getDataInbox()
     {
         $penerima = $this->input->post('penerima', true);
-        $query = $this->db->query('SELECT a.* FROM tb_send a, tb_delete b WHERE a.id_send = b.id_send AND b.ket_penerima = "' . $penerima . '"')->result();
+        $query = $this->db->query('SELECT a.* FROM tb_send a, tb_delete b WHERE a.id_send = b.id_send AND b.ket_penerima = "' . $penerima . '" ORDER BY a.id_send DESC')->result();
         $api = array();
         foreach ($query as $q) {
             $api[] = [
@@ -233,7 +295,7 @@ class Api extends CI_Controller
     public function getRecent()
     {
         $user = $this->input->post('user', true);
-        $query = $this->db->query('SELECT tb_send.id_send, tb_send.pengirim, tb_send.penerima, tb_send.tipe FROM tb_send LEFT JOIN tb_recent ON tb_send.id_send = tb_recent.id_send WHERE tb_send.pengirim="' . $user . '" ORDER BY id_send ASC');
+        $query = $this->db->query('SELECT tb_send.id_send, tb_send.pengirim, tb_send.penerima, tb_send.tipe FROM tb_send LEFT JOIN tb_recent ON tb_send.id_send = tb_recent.id_send WHERE tb_send.pengirim="' . $user . '" ORDER BY id_send DESC LIMIT 10');
         $query1 = $query->result();
         foreach ($query1 as $q1) {
             $api[] = [
